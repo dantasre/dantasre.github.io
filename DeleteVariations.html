@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Pesquisa de detalhes da Categoria Mercado Livre</title>
+<head>
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+   <style>
+      h2 {
+      font-size: 22px;
+      font-family: sans-serif;
+      }
+      img {
+      float: left;
+      }
+      h3 {
+      font-size: 28px;
+      font-family: 'Lato', sans-serif;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      padding-left: 0px;
+      height: 40px;
+      color: #000080;
+      width: 100%;
+      }
+	  
+	  #auth {
+   		width: 50%;
+	}
+
+    input[id=skuVariation] {
+      width: 50%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      background-image: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-32.png');
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+	  h1, h2, h3 {
+    line-height: 40px;
+}
+	  
+      input[id=skuVariation]:focus {
+      width: 70%;
+      }
+   
+		#cabecalho {
+		
+		  width: 100%;
+		}
+		#cabecalho th {
+   background-color: #2D6AA0;
+}
+
+      .button {background-color: #4682B4;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 6px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Lato', sans-serif;
+      font-weight: bold;
+	  
+	  
+      }
+      .buttonDelete{
+      background-color: #C0C0C0;
+	  hide;
+      } /* Blue */
+      
+	  .buttonclearTable {
+	  background-color: #3CB371;
+	  background-repeat: no-repeat;
+      background-size: 40px 40px;
+	  
+	  }
+	  
+#excelDataTable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 50%;
+}
+
+#excelDataTable td, #excelDataTable th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#excelDataTable tr:nth-child(even){background-color: #f2f2f2;}
+
+#excelDataTable tr:hover {background-color: #FFFF;}
+
+#excelDataTable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #2D6AA0;
+    color: white;
+}
+
+
+#logTable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 15%;
+}
+
+#logTable td, #logTable th {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#logTable tr:nth-child(even){background-color: #f2f2f2;}
+
+#logTable tr:hover {background-color: #FFFF;}
+
+#logTable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #2D6AA0;
+    color: white;
+}
+	  
+	  .email{
+	   background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbkoTG5lHdQ46rlzq8EWRGpdNF9EsQKlOEw1_wQ4Tyf2O5Cl5n');
+	  }
+	  
+   </style>
+</head>
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script>
+var items = [];
+var skus = [];
+var uniqueSkus = [];
+
+//Pesquisa os atributos obrigatórios da Categoria
+function getVariations(skuVariation) {
+
+    var apiKey = document.getElementById("apiKey").value;
+    var email = document.getElementById("email").value;
+    console.log(skuVariation);
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("GET", "https://api.skyhub.com.br/variations/" + skuVariation, true);
+    //+ skuVariation
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('X-User-Email', email);
+    xhr.setRequestHeader('X-API-Key', apiKey);
+  
+
+   xhr.onload = function() {
+		if (xhr.status == 200) {
+        console.log(xhr.status);
+   
+	   var obj = jQuery.parseJSON(xhr.responseText);
+		console.log(obj);
+        var variations = {};
+        var cells = [];
+
+        items = obj.variation;
+        product = obj.product;
+		
+		console.log(items);
+
+		if(checkValue(items.sku,uniqueSkus) == false){
+		fillDataTable(product.sku,items.sku,items.quantity,items.ean);
+		clearDuplicates();
+        console.log(skus);
+		}
+        //}
+	
+		}
+    };
+
+
+    xhr.send();
+
+}
+function fillDataTable(productSku,itemSku,itemQty,itemEan){
+  //   	 function fillTable() {
+        var table = document.getElementById("excelDataTable");
+        var row = table.insertRow(1);
+        var cell1 = row.insertCell(0);
+        var cell2 = row.insertCell(1);
+        var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        cell1.innerHTML = productSku;
+        cell2.innerHTML = itemSku;
+        cell3.innerHTML = itemQty;
+        cell4.innerHTML = itemEan;
+        skus.push(itemSku);
+		
+
+}
+
+function fillLogTable(status){
+  //   	 function fillTable() {
+        var table = document.getElementById("logTable");
+        var row = table.insertRow(1);
+        var cell1 = row.insertCell(0);
+		if(status == 204){
+        cell1.innerHTML = '<i class="fa fa-check-circle" style="font-size:17px;color:green"></i>';	
+		}else {
+		 cell1.innerHTML = '<i class="fa fa-close" style="font-size:17px;color:red"></i>';
+		}
+
+}
+function ClearTable() {
+    $("#excelDataTable td").remove();
+	$("#logTable td").remove();
+  var property = document.getElementById("buttonDelete");
+    			property.style.backgroundColor = "#C0C0C0";
+				$('.buttonDelete').prop('disabled', true); //TO DISABLED 
+	
+}
+
+
+function deleteVariations(sku) {
+
+    var apiKey = document.getElementById("apiKey").value;
+
+    var email = document.getElementById("email").value;
+
+    var xhr = new XMLHttpRequest();
+
+    xhr.open("DELETE", "https://api.skyhub.com.br/variations/" + sku, true);
+    //+ skuVariation
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('X-User-Email', email);
+    xhr.setRequestHeader('X-API-Key', apiKey);
+    xhr.onload = function() {
+	fillLogTable(xhr.status);
+	}
+	xhr.send();
+	
+}
+
+function deleteVarationCaller() {
+    clearDuplicates();
+    var i;
+    for (i = 0; i < uniqueSkus.length; i++) {
+        deleteVariations(uniqueSkus[i]);
+    }
+
+}
+
+function clearDuplicates() {
+
+    $.each(skus, function(i, el) {
+        if ($.inArray(el, uniqueSkus) === -1) uniqueSkus.push(el);
+    });
+    console.log(uniqueSkus);
+	if(uniqueSkus.length > 0){
+	
+	
+			var property = document.getElementById("buttonDelete");
+    			property.style.backgroundColor = "#FF0000";
+				$('.buttonDelete').prop('disabled', false); //TO DISABLED 
+				 	}
+}
+
+function parseSkus() {
+    var str = document.getElementById("skuVariation").value;
+
+    var skuVariations = str.split(",");
+    var i;
+
+    for (i = 0; i < skuVariations.length; i++) {
+        getVariations(skuVariations[i]);
+    }
+
+
+}
+ function checkValue(value,arr){
+  var status = false;
+ 
+  for(var i=0; i<arr.length; i++){
+   var sku = arr[i];
+   if(sku == value){
+    status = true;
+    break;
+   }
+  }
+
+  return status;
+ }
+</script>
+<body>
+   <div class="page-header position-relative">
+   <table id="cabecalho" border="0" bgcolor="#2D6AA0">
+      <tr bgcolor="#2D6AA0">
+         <td><img src="http://in.skyhub.com.br/assets/skyhub.png"  alt="Logotipo"> </td>
+         </tr>
+	  <tr>
+	  <td>
+            <h1>Exclusão massiva de variações</h1>
+         </td>
+	  </tr>
+   </table>
+   </div>
+   <div class="input-group" id="auth">
+      <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+      <input id="email" type="text" class="form-control" name="email" placeholder="Email">
+    </div>
+     <div class="input-group" id="auth">
+      <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+      <input id="apiKey" type="text" class="form-control" id="apiKey name="apiKey" placeholder="API-Key..">
+    </div>
+
+   <input type="text" id="skuVariation" class="input category"  placeholder="Sku da Variação.." />
+   <button class="button buttonGetList"  value="variations" id="variations" onclick="parseSkus()">+</button>
+    <button class="button buttonDelete"  value="variations" id="buttonDelete" disabled ='disabled' onclick="deleteVarationCaller()">DELETAR</button>
+    
+   <button class="button buttonclearTable" value="clearTable" id="clearTable" onclick="ClearTable()"> Limpar Tabela</button>
+  
+  
+  <div id="SearchTable">
+   <table id="excelDataTable" border="1" style="float: left" table style="width="50%">
+   <tr >
+   <th>SKU PAI</th> <th> SKU Variação </th> <th>Quantidade </th> <th>EAN</th>
+   </tr>
+   </table>
+   
+   <table id="logTable" border="1" style="float: left" table style="width="50%">
+   <tr> <th>Status Exclusão</th>
+   </tr>
+   </table>
+   </div>
+   <div id="container"></div>
+   <span id="message"></span>
+</body>
+</html>
+
