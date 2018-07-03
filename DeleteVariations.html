@@ -158,7 +158,7 @@ function getVariations(skuVariation) {
     console.log(skuVariation);
     var xhr = new XMLHttpRequest();
 
-    xhr.open("GET", "https://api.skyhub.com.br/variations/" + skuVariation, true);
+    xhr.open("GET", "https://api.codetabs.com/cors-proxy/https://api.skyhub.com.br/variations/" + skuVariation, true);
     //+ skuVariation
     xhr.withCredentials = true;
     xhr.setRequestHeader('X-User-Email', email);
