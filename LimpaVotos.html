@@ -5,6 +5,9 @@
 <head>
 
     <style>
+	 #auth {
+   		width: 50%;
+	}
         h2 {
          font-size: 22px;
         	 font-family: sans-serif;
@@ -27,7 +30,7 @@
         
         }
         
-        input[type=text] {
+        #article{
             width: 25%;
             box-sizing: border-box;
             border: 3px solid #ccc;
@@ -46,9 +49,7 @@
 			 margin: 6px 2px;
         
         }
-        input[type=text]:focus {
-            width: 25%;
-        }
+       
         
         .button {background-color: #4682B4;
             border: none;
@@ -95,7 +96,9 @@
         }
     </style>
 </head>
+ <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+ <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 <script>
     // Handler for .ready() called.
     
@@ -103,15 +106,13 @@
     // using jQuery & 'beforeSend' callback
      function getVotesList() {
     	var article = document.getElementById("article").value;
-    
+	   	var user = document.getElementById("email").value;
+		var pass = document.getElementById("password").value;
+		var credentials = user + ':' + pass;
     	var xhr = new XMLHttpRequest();
     
     	xhr.open("GET", "https://skyhub.zendesk.com/api/v2/help_center/pt-br/articles/"+ article +"/votes.json", true);
-    
-		xhr.withCredentials = true;
-        var user = 'renato.angelo@skyhub.com.br';
-		var pass = 'ugmr5etv';
-		var credentials = user + ':' + pass;
+    	xhr.withCredentials = true;
 		xhr.setRequestHeader("Authorization", 'Basic ' + btoa(credentials)); 
     	xhr.onload = function () {
     	 console.log(xhr.responseText);
@@ -189,9 +190,9 @@
     console.log("deleteCaller");
     var article = document.getElementById("article").value;
     var xhr = new XMLHttpRequest();
-    var user = 'renato.angelo@skyhub.com.br';
-    var pass = 'ugmr5etv';
-    var credentials = user + ':' + pass;
+    
+	var user = document.getElementById("email").value;
+	var pass = document.getElementById("senha").value;
 	
     xhr.open("GET", "http://skyhub.zendesk.com/api/v2/help_center/pt-br/articles/"+ article +"/votes.json", true);
     
@@ -237,10 +238,9 @@
     
      
     var jsonVotes = [];
-    var user = 'renato.angelo@skyhub.com.br';
-    var pass = 'ugmr5etv';
-    var credentials = user + ':' + pass;
-	var access_token = 'vygLF6EvEBtt8lyV6FugqE3sHZxopFlnRYa2JP9F';
+    
+  
+	
 </script>
 
 
@@ -254,6 +254,14 @@
         <div class="subtitle">
             <h3>Pesquisa e exclusão de votos por artigo</h3>
         </div>
+    </div>
+	  <div class="input-group" id="auth">
+      <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+      <input id="email" type="text" class="form-control" name="email" placeholder="Email">
+    </div>
+     <div class="input-group" id="auth">
+      <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+      <input id="password" type="password" class="form-control" name="apiKey" placeholder="Senha">
     </div>
 
     <input type="text" id="article" class="input article" placeholder="Artigo.." />
