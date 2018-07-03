@@ -7,6 +7,68 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
    <style>
+  /* Customize the label (the container) */
+.container {
+  display: block;
+  position: relative;
+  padding-left: 35px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Hide the browser's default radio button */
+.container input {
+  position: absolute;
+  opacity: 0;
+}
+
+/* Create a custom radio button */
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 25px;
+  width: 25px;
+  background-color: #eee;
+  border-radius: 50%;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ .checkmark {
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container input:checked ~ .checkmark {
+  background-color: #2196F3;
+}
+
+/* Create the indicator (the dot/circle - hidden when not checked) */
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+/* Show the indicator (dot/circle) when checked */
+.container input:checked ~ .checkmark:after {
+  display: block;
+}
+
+/* Style the indicator (dot/circle) */
+.container .checkmark:after {
+  top: 9px;
+  left: 9px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: white;
+}
       h2 {
       font-size: 22px;
       font-family: sans-serif;
@@ -90,6 +152,11 @@
       background-size: 40px 40px;
 	  
 	  }
+
+	  
+	  h1, h2, h3 {
+    line-height: 40px;
+}
 	  
 #excelDataTable {
     font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
@@ -141,6 +208,7 @@
 	  .email{
 	   background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSbkoTG5lHdQ46rlzq8EWRGpdNF9EsQKlOEw1_wQ4Tyf2O5Cl5n');
 	  }
+
 	  
    </style>
 </head>
@@ -347,7 +415,7 @@ function parseSkus() {
          </tr>
 	  <tr>
 	  <td>
-            <h1>Exclusão massiva de variações</h1>
+            <h1>Exclusão massiva de Produtos e Variações</h1>
          </td>
 	  </tr>
    </table>
@@ -360,12 +428,18 @@ function parseSkus() {
       <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
       <input id="apiKey" type="text" class="form-control" id="apiKey name="apiKey" placeholder="API-Key.." style="float: left" > 
     </div>
-<div id="">
-  <input type="radio" name="request"  id="radio_products" value="products" >Produtos
-  <input type="radio" name="request"  id="radio_variations" value="variations">Variações<br>
+<div id="radioButtons">
+<label class="container">Produtos
+  <input type="radio" checked="checked" name="request" id="radio_products" value="products">
+  <span class="checkmark"></span>
+</label>
+<label class="container">Variações
+  <input type="radio" name="request" id="radio_variations" value="variations">
+  <span class="checkmark"></span>
+</label>
 </div>
 
-   <input type="text" id="skuVariation" class="input category"  placeholder="Sku da Variação.." />
+   <input type="text" id="skuVariation" class="input category"  placeholder="SKU.." />
    <button class="button buttonGetList"  value="variations" id="variations" onclick="parseSkus()">+</button>
     <button class="button buttonDelete"  value="variations" id="buttonDelete" disabled ='disabled' onclick="deleteVarationCaller()">DELETAR</button>
     
