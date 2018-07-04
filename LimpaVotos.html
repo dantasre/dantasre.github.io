@@ -192,7 +192,7 @@
     var xhr = new XMLHttpRequest();
     var user = document.getElementById("email").value;
     var pass = document.getElementById("password").value;
-ar credentials = user + ':' + pass;
+    var credentials = user + ':' + pass;
 	
     xhr.open("GET", "http://skyhub.zendesk.com/api/v2/help_center/pt-br/articles/"+ article +"/votes.json", true);
     
