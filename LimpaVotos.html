@@ -194,7 +194,7 @@
     var pass = document.getElementById("password").value;
     var credentials = user + ':' + pass;
 	
-    xhr.open("GET", "http://skyhub.zendesk.com/api/v2/help_center/pt-br/articles/"+ article +"/votes.json", true);
+    xhr.open("GET", "https://skyhub.zendesk.com/api/v2/help_center/pt-br/articles/"+ article +"/votes.json", true);
     
     xhr.withCredentials = true;
       xhr.setRequestHeader("Authorization", 'Basic ' + btoa(credentials)); 
