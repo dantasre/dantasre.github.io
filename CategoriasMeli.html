@@ -1,5 +1,3 @@
-
-
 <!DOCTYPE html>
 <meta charset="UTF-8">
 <title>Pesquisa e exclusão de votos por artigo</title>
@@ -89,7 +87,6 @@
 </head>
 <script src="https://code.jquery.com/jquery-1.10.2.js"></script>
 <script>
-
 //Pesquisa os atributos obrigatórios da Categoria
  function getCategoryAttributes() {
    	var category = document.getElementById("category").value;
@@ -106,14 +103,12 @@
    items = obj;		
    							
    $.each(items, function (index) {
-		if(items[index].tags.required == true)
+		if(items[index].tags.required == true || items[index].tags.catalog_required == true)
 		attributesRequired.push(items[index]);
    	
    	//document.getElementById("message").textContent = jsonVotes;
    });
-   		
-   console.log(attributesRequired);
-   		    		
+   		   		    		
    		if(attributesRequired.length != 0){
    			buildHtmlTable(attributesRequired);
    		}else{
@@ -135,7 +130,6 @@
    
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-
    items = obj.table.sections[0].attributes;		
 	
    $.each(items, function (index) {
@@ -205,7 +199,6 @@ function addAllColumnHeaders(myList){
    
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-
    items = obj.shipping_modes;		
 	
  //  $.each(items, function (index) {
@@ -228,7 +221,6 @@ function addAllColumnHeaders(myList){
 function ClearTable(){
  $("#excelDataTable tr").remove();  
  document.getElementById("message").textContent="";
-
 }  
 </script>
 <body>
@@ -253,4 +245,3 @@ function ClearTable(){
    <span id="message"></span>
 </body>
 </html>
-
