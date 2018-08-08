@@ -58,12 +58,16 @@
       font-weight: bold;
 	  
       }
-      .buttonDelete{
+      .buttonExport{
       background-color: #C0C0C0;
       } /* Blue */
       table {
       border-collapse: collapse;
       width: 100%;
+      }
+      .export{
+      background-color: #C0C0C0;
+
       }
 	  .buttonclearTable {
 	  background-color: #3CB371;
@@ -76,8 +80,8 @@
       text-align: left;
       border-bottom: 1px solid #ddd;
       }
-      th{
-      background-color: #4682B4;
+      th
+{      background-color: #4682B4;
       color: white;
       }
       tr:nth-child(even){
@@ -85,9 +89,15 @@
       }
    </style>
 </head>
-<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="src/table2csv.js"></script>
 <script>
 //Pesquisa os atributos obrigatórios da Categoria
+
+//variável publica
+var storeItems = [];
+var countCalls = 0;
+
  function getCategoryAttributes() {
    	var category = document.getElementById("category").value;
    var attributesRequired = [];
@@ -134,12 +144,8 @@
 	
    $.each(items, function (index) {
 		visibleAttributes.push(items[index]);
-   	
-   	//document.getElementById("message").textContent = jsonVotes;
    });
-   		
-   
-   		    		
+    		    		
    		if(visibleAttributes.length != 0){
    			buildHtmlTable(visibleAttributes);
    		}else{
@@ -187,41 +193,116 @@ function addAllColumnHeaders(myList){
         return columnSet;
     }
 	
-     //Pesquisa os dados do Seller
- function getShippingMethods() {
-   	var category = document.getElementById("category").value;
-	var visibleAttributes = [];
-   	var xhr = new XMLHttpRequest();
+
+
+function getShippingMethods() {
+    var category = document.getElementById("category").value;
+  var visibleAttributes = [];
+    var xhr = new XMLHttpRequest();
    
-   	xhr.open("GET", "https://api.mercadolibre.com/users/me?access_token="+ category, true);
-      	xhr.withCredentials = false;
-     	xhr.onload = function () {
+    xhr.open("GET", "https://api.mercadolibre.com/users/me?access_token="+ category, true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
    
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-   items = obj.shipping_modes;		
-	
- //  $.each(items, function (index) {
-	//	visibleAttributes.push(items[index]);
-   	
-   	//document.getElementById("message").textContent = jsonVotes;
-  // });
-		  visibleAttributes.push(items);  		
-   				
-		if(visibleAttributes.length != 0){
-   			buildHtmlTable(visibleAttributes);
-   		}else{
-   			document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
-   		}
+   items = obj.shipping_modes;    
+  
+      visibleAttributes.push(items);      
+          
+    if(visibleAttributes.length != 0){
+        buildHtmlTable(visibleAttributes);
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
    };
    xhr.send();
    }
+
+
+//Cria variáveis globais para os métodos abaixo
+ var totalPages;
+  var offset;
+  var totalItems;
+  var storeItems = [];
+  var totalCalls = 0;
+  var limit;
+
+//Retorna a lista de Produtos
+function getProductList(offset,sellerID) {
+   console.log("Fez uma nova chamada");
+    var xhr = new XMLHttpRequest();
    
+     xhr.open("GET", "https://api.mercadolibre.com/sites/MLB/search?seller_id="+ sellerID +"&limit=50&offset="+ offset, true);
+     xhr.withCredentials = false;
+
+     xhr.onreadystatechange = function () {
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+             countCalls ++;
+             if (countCalls >= totalCalls) {
+               buildHtmlTable(storeItems);
+            console.log("ultima chamada");
+             var property = document.getElementById("export");
+              property.style.backgroundColor = "#333300";
+              $('#export').prop('disabled', false); //TO DISABLED 
+            }
+        }
+    };
+
+  xhr.onload = function () {
+   
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var items = obj.results;    
+ 
+ $.each(items, function (index) {
+   storeItems.push(items[index]);
+     });
+    
+   }
+    xhr.send();
+
+ }
+
+//Retorna os dados de paginação
+ function getPages(){
+console.log("acessou getPages");
+var sellerID = document.getElementById("category").value;
+ var xhr = new XMLHttpRequest();
+ var url = "https://api.mercadolibre.com/sites/MLB/search?seller_id="+ sellerID +"&limit=50";
+xhr.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(this.responseText);
+        offset  = response.paging.offset;
+        totalItems = response.paging.total;
+        limit = response.paging.limit; 
+        totalCalls = totalItems / 50 + 1;
+console.log("fez a primeira chamada - Sem Produtos");
+
+   for(i = 0; i < totalCalls; i++){
+         getProductList(offset,sellerID);
+         offset = offset + limit;
+
+    }
+
+
+    }
+};
+   
+     xhr.open("GET", url , true);
+     xhr.withCredentials = false;
+     xhr.send();
+
+}     
+
+  
     
 function ClearTable(){
  $("#excelDataTable tr").remove();  
  document.getElementById("message").textContent="";
 }  
+
+
+
 </script>
 <body>
    <table id="cabecalho" border="0" bgcolor="#FFE14D" >
@@ -237,11 +318,27 @@ function ClearTable(){
 <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getCategoryAttributes()"> Pesquisar Atributos obrigatórios</button>
 <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getVisibleAttributes()"> Pesquisar Ficha Técnica</button>
 <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getShippingMethods()"> Pesquisar Métodos de Envio</button>
-<button class="button buttonclearTable" value="clearTable" id="clearTable" onclick="ClearTable()"> Limpar Tabela</button>
-  
-  
+<button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getPages()"> Listar Produtos</button>
+<button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
+<button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
+
    <table id="excelDataTable" border="1">
+    <tbody></tbody>
    </table>
    <span id="message"></span>
+
+<script>
+  /* global $ */
+  $("#export").click(function(){
+    $("#excelDataTable").table2csv({
+      separator: '§',
+      newline: '\n',
+      quoteFields: true,
+      filename: 'table.csv'
+    });
+  })
+</script>
+
+
 </body>
 </html>
