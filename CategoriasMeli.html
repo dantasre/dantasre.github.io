@@ -121,6 +121,7 @@ var countCalls = 0;
    		   		    		
    		if(attributesRequired.length != 0){
    			buildHtmlTable(attributesRequired);
+        EnableCSV();
    		}else{
    			document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
    		}
@@ -148,6 +149,7 @@ var countCalls = 0;
     		    		
    		if(visibleAttributes.length != 0){
    			buildHtmlTable(visibleAttributes);
+        EnableCSV();
    		}else{
    			document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
    		}
@@ -212,6 +214,7 @@ function getShippingMethods() {
           
     if(visibleAttributes.length != 0){
         buildHtmlTable(visibleAttributes);
+        EnableCSV();
       }else{
         document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
       }
@@ -242,9 +245,7 @@ function getProductList(offset,sellerID) {
              if (countCalls >= totalCalls) {
                buildHtmlTable(storeItems);
             console.log("ultima chamada");
-             var property = document.getElementById("export");
-              property.style.backgroundColor = "#333300";
-              $('#export').prop('disabled', false); //TO DISABLED 
+             EnableCSV();
             }
         }
     };
@@ -301,6 +302,11 @@ function ClearTable(){
  document.getElementById("message").textContent="";
 }  
 
+function EnableCSV(){
+     var property = document.getElementById("export");
+              property.style.backgroundColor = "#333300";
+              $('#export').prop('disabled', false); //TO DISABLED 
+}
 
 
 </script>
