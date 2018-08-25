@@ -223,9 +223,13 @@ var getProductList = function (currentMbls) {
               items = obj;
 
           $.each(items, function (index) {
-           itemId = items[index].id;
-           itemPrice = items[index].price; 
-           itemsQuantity = items[index].available_quantity;
+          	var temp_obj = items[index];
+           
+                    if (temp_obj.shipping){
+                    temp_obj["free_shipping"]   = temp_obj.shipping.free_shipping;
+                    temp_obj["shipping_method"] = temp_obj.shipping.mode;
+                  }
+             storeItems.push(temp_obj);
             storeItems.push(items[index]);
             console.log(storeItems[index]);
 
