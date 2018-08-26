@@ -227,22 +227,39 @@ var getProductList = function (currentMbls) {
               items = obj;
 
              $.each(items, function (index) {
-            var temp_obj = items[index];
+              var temp_obj = items[index];
            
                     if (temp_obj.shipping){
-                    temp_obj["free_shipping"]   = temp_obj.shipping.free_shipping;
-                    temp_obj["shipping_mode"] = temp_obj.shipping.mode;
-                  }
+                       temp_obj["shipping_mode"] =  temp_obj.shipping.mode;  
 
-                      if (temp_obj.variations){
-                        $.each(temp_obj.variations, function (variationIndex) {
-                          var temp_variation = temp_obj;
-                          temp_variation["seller_custom_field"] =  temp_variation.variations[variationIndex].seller_custom_field;
-                                    storeItems.push(temp_variation);
-                         }); 
-                  }else{
+
+                        if(temp_obj.shipping.free_shipping == true){
+                          temp_obj["free_shipping"]  = "true";
+                         
+                        }else {
+                            temp_obj["free_shipping"]  = "false";
+                              }                      
+                       delete temp_obj["shipping"];
+                      }
+
+                          if (temp_obj.variations){
+                              
+                             for (i = 0; i < temp_obj.variations.length; i++) {
+                                  
+                                  if (i>0) {
+                                  temp_obj["seller_custom_field"] = temp_obj.variations[i].seller_custom_field +", "+ temp_obj.seller_custom_field;
+                                  }else {
+                                    temp_obj["seller_custom_field"] = temp_obj.variations[i].seller_custom_field;
+                                   }
+
+
+                                
+                                 }
+                                   storeItems.push(temp_obj);
+                                   delete temp_obj["variations"];
+                             }else{ 
                       
-              storeItems.push(temp_obj);
+                          storeItems.push(temp_obj);
     
                   }
 
@@ -267,6 +284,14 @@ var getProductList = function (currentMbls) {
 
 
 
+  function createVariations(item, index) {
+  let variation = item; 
+    
+  item.seller_custom_field = item.seller_custom_field[index].seller_custom_field; 
+  storeItems.push(item);
+
+ }
+
 
 //Retorna os dados de paginação
  function getPages(){
@@ -282,9 +307,8 @@ xhr.onreadystatechange = function() {
         limit = response.paging.limit; 
         totalPages = totalItems / 100 + 1;
 
-
-console.log("fez a primeira chamada - Sem Produtos");
       getMLBList(url);
+       document.getElementById("storeItemsQty").textContent="  [QUANTIDADE DE ANÚNCIOS: "+ totalItems+ "]";
 
     }
 };
@@ -297,7 +321,6 @@ console.log("fez a primeira chamada - Sem Produtos");
 
 //CARREGA A LISTA DE MLB
 function getMLBList(url) {
-   console.log("Fez uma nova chamada");
    DisableListProducts();
 
     var xhr = new XMLHttpRequest();
@@ -312,7 +335,7 @@ function getMLBList(url) {
                var mlbs = obj.results;    
               scrollId = obj.scroll_id;
                 countCalls ++;
-              console.log(scrollId);
+              
 
                    $.each(mlbs, function (index) {
                      MLBList.push(mlbs[index]);
@@ -327,16 +350,12 @@ function getMLBList(url) {
              countCalls = 0;
              var arrayToGet; 
             totalProductPages = (MLBList.length / 50);
-            console.log(totalProductPages);
-
+           
              for(i = 0; i < totalProductPages +1; i++){
                                 
                    
                     increment = i * 50; 
                     to = increment + 50;  
-
-                     console.log("DE: "+ increment);
-                    console.log("ATÉ: "+ to);
 
                     arrayToGet = MLBList.slice(increment,to);
 
@@ -361,7 +380,6 @@ function getMLBList(url) {
   clearTable();
  appUsr = document.getElementById("appUsr").value.trim(); 
  sellerID =  getSellerID(appUsr);
-console.log('oi');
   url = "https://api.mercadolibre.com/users/"+ sellerID +"?access_token="+ appUsr;
 
     var xhr = new XMLHttpRequest();
@@ -374,9 +392,7 @@ console.log('oi');
    var list = obj.status.list.allow; 
     var codes = [];
     
-    console.log(list);
-
-    if(obj.status.list.allow.codes){
+     if(obj.status.list.allow.codes){
  $.each(obj.status.list.allow.codes, function (index) {
        codes.push(obj.list.allow.codes[index], list);
        //document.getElementById("message").textContent = jsonVotes;
@@ -411,11 +427,6 @@ console.log('oi');
          </td>
       </tr>
    </table>
-   
-
-
-
-
 <table>
   <thead>
     <tr>
@@ -438,7 +449,7 @@ console.log('oi');
   <thead>
     <tr>
       <td>
-      PESQUISA DE ANÚNCIOS E DADOS DO SELLER
+      PESQUISA DE ANÚNCIOS E DADOS DO SELLER <span id="storeItemsQty"></span>
     </td>
     </tr>
     <tr>
