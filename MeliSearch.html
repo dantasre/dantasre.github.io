@@ -38,8 +38,8 @@
       color: #808080;
       margin: 6px 2px;
       }
-	  
-	  
+    
+    
       input[type=text]:focus {
       width: 25%;
       }
@@ -56,7 +56,7 @@
       border-radius: 4px;
       font-family: 'Lato', sans-serif;
       font-weight: bold;
-	  
+    
       }
       .buttonExport{
       background-color: #C0C0C0;
@@ -69,12 +69,12 @@
       background-color: #C0C0C0;
 
       }
-	  .buttonclearTable {
-	  background-color: #F95D5D;
-	  background-repeat: no-repeat;
+    .buttonclearTable {
+    background-color: #F95D5D;
+    background-repeat: no-repeat;
       background-size: 40px 40px;
-	  
-	  }
+    
+    }
       th, td {
       padding: 3px;
       text-align: left;
@@ -98,70 +98,74 @@
 var countCalls = 0;
 
  function getCategoryAttributes() {
-   	var category = document.getElementById("category").value;
+     ClearTable();
+    var category = document.getElementById("category").value;
    var attributesRequired = [];
-   	var xhr = new XMLHttpRequest();
+    var xhr = new XMLHttpRequest();
    
-   	xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/attributes", true);
-      	xhr.withCredentials = false;
-     	xhr.onload = function () {
+    xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/attributes", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
    
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-   		
-   items = obj;		
-   							
+      
+   items = obj;   
+                
    $.each(items, function (index) {
-		if(items[index].tags.required == true || items[index].tags.catalog_required == true)
-		attributesRequired.push(items[index]);
-   	
-   	//document.getElementById("message").textContent = jsonVotes;
+    if(items[index].tags.required == true || items[index].tags.catalog_required == true)
+    attributesRequired.push(items[index]);
+    
+    //document.getElementById("message").textContent = jsonVotes;
    });
-   		   		    		
-   		if(attributesRequired.length != 0){
-   			buildHtmlTable(attributesRequired);
+                    
+      if(attributesRequired.length != 0){
+        buildHtmlTable(attributesRequired);
         EnableCSV();
-   		}else{
-   			document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
-   		}
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
    };
    xhr.send();
    }
    
    //Pesquisa os atributos visíveis da Categoria
  function getVisibleAttributes() {
-   	var category = document.getElementById("category").value;
-	var visibleAttributes = [];
-   	var xhr = new XMLHttpRequest();
+    var category = document.getElementById("category").value;
+  var visibleAttributes = [];
+    var xhr = new XMLHttpRequest();
    
-   	xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/technical_specifications", true);
-      	xhr.withCredentials = false;
-     	xhr.onload = function () {
+    xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/technical_specifications", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
    
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-   items = obj.table.sections[0].attributes;		
-	
+   items = obj.table.sections[0].attributes;    
+  
    $.each(items, function (index) {
-		visibleAttributes.push(items[index]);
+    visibleAttributes.push(items[index]);
    });
-    		    		
-   		if(visibleAttributes.length != 0){
-   			buildHtmlTable(visibleAttributes);
+                
+      if(visibleAttributes.length != 0){
+        buildHtmlTable(visibleAttributes);
         EnableCSV();
-   		}else{
-   			document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
-   		}
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
    };
    xhr.send();
    }
    
  function getShippingMethods() {
-    var category = document.getElementById("category").value;
+  clearTable();
+  appUsr = document.getElementById("appUsr").value.trim(); 
+  sellerID =  getSellerID(appUsr);
+
   var visibleAttributes = [];
     var xhr = new XMLHttpRequest();
    
-    xhr.open("GET", "https://api.mercadolibre.com/users/me?access_token="+ category, true);
+    xhr.open("GET", "https://api.mercadolibre.com/users/"+sellerID +"?access_token="+ appUsr, true);
         xhr.withCredentials = false;
       xhr.onload = function () {
    
@@ -244,7 +248,7 @@ var getProductList = function (currentMbls) {
 
                    
           }); 
-		
+    
               countCalls ++;
              if (countCalls >=  totalProductPages) {
            buildHtmlTable(storeItems);
@@ -266,10 +270,8 @@ var getProductList = function (currentMbls) {
 
 //Retorna os dados de paginação
  function getPages(){
-
- sellerID = document.getElementById("category").value.trim();
  appUsr = document.getElementById("appUsr").value.trim(); 
-
+ sellerID =  getSellerID(appUsr);
 
  var xhr = new XMLHttpRequest();
    url ="https://api.mercadolibre.com/users/"+ sellerID+"/items/search?search_type=scan&limit=100&access_token="+ appUsr;
@@ -355,10 +357,10 @@ function getMLBList(url) {
 
  }
 
-
  function GetSellerPendingData(){
- sellerID = document.getElementById("category").value.trim();
+  clearTable();
  appUsr = document.getElementById("appUsr").value.trim(); 
+ sellerID =  getSellerID(appUsr);
 console.log('oi');
   url = "https://api.mercadolibre.com/users/"+ sellerID +"?access_token="+ appUsr;
 
@@ -410,24 +412,23 @@ console.log('oi');
       </tr>
    </table>
    
-<input type="text" id="category" class="input category" placeholder="Categoria ou Seller ID" />
-<input type="text" id="appUsr" class="input category" placeholder="APP_USR" />
-<button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
-    <button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
-<br>
+
+
 
 
 <table>
   <thead>
     <tr>
       <td>
-      PESQUISAS DE CATEGORIA - [PREENCHA APENAS O CAMPO CATEGORIA]
+      PESQUISAS DE CATEGORIA
     </td>
     </tr>
     <tr>
-      <td>
-    <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getCategoryAttributes()"> Pesquisar Atributos obrigatórios</button>
-    <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getVisibleAttributes()"> Pesquisar Ficha Técnica</button>
+    <td>
+        <input type="text" id="category" class="input category" placeholder="Categoria" />
+   
+        <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getCategoryAttributes()"> Pesquisar Atributos obrigatórios</button>
+        <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getVisibleAttributes()"> Pesquisar Ficha Técnica</button>
     </td>
     </tr>
   </thead>
@@ -437,32 +438,27 @@ console.log('oi');
   <thead>
     <tr>
       <td>
-      PESQUISA DE ANÚNCIOS - [PREENCHA OS DOIS CAMPOS]
+      PESQUISA DE ANÚNCIOS E DADOS DO SELLER
     </td>
     </tr>
     <tr>
       <td>
+        <input type="text" id="appUsr" class="input category" placeholder="APP_USR" />
+
         <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="getPages()"> Listar Anúncios</button>
-      </td>
-    </tr>
-  </thead>
-</table>
-<br>
-<table>
-  <thead>
-    <tr>
-      <td>
-      PESQUISA DE DADOS DO SELLER  - [PREENCHA OS DOIS CAMPOS]
-    </td>
-    </tr>
-    <tr>
-      <td>
+
     <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getShippingMethods()"> Pesquisar Métodos de Envio</button>
+
      <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="GetSellerPendingData()"> Pesquisar Dados Pendentes</button>
 
     </td>
     </tr>
   </thead>
+</table>
+<br>
+<button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
+    <button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
+<br>
 </table>
    <table id="excelDataTable" border="1">
     <tbody></tbody>
@@ -556,6 +552,12 @@ function addAllColumnHeaders(myList){
     
         return columnSet;
     }
+
+function getSellerID(appUser){
+var last = appUser.substring(appUser.lastIndexOf("-") + 1, appUser.length);
+return last;
+
+}
   </script>
 
 
