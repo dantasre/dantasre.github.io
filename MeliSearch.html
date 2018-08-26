@@ -233,7 +233,7 @@ var getProductList = function (currentMbls) {
                       if (temp_obj.variations){
                         $.each(temp_obj.variations, function (variationIndex) {
                           var temp_variation = temp_obj;
-                          temp_variation["seller_custom_field"] =  temp_obj.variations[variationIndex].seller_custom_field;
+                          temp_variation["seller_custom_field"] =  temp_variation.variations[variationIndex].seller_custom_field;
                                     storeItems.push(temp_variation);
                          }); 
                   }else{
