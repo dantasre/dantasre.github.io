@@ -213,7 +213,7 @@ var getProductList = function (currentMbls) {
   /* TRATAR OS PRODUTOS!!! */
     var obj;
     var xhr = new XMLHttpRequest();
-    var url = "https://api.mercadolibre.com/items?ids=" + currentMbls +"&attributes=id,title,price,available_quantity,status,shipping.free_shipping,seller_id,variations.seller_custom_field,s#json";
+    var url = "https://api.mercadolibre.com/items?ids=" + currentMbls +"&attributes=id,title,price,available_quantity,status,shipping,seller_id,variations.seller_custom_field,s#json";
  
      xhr.withCredentials = false;
 
@@ -222,20 +222,30 @@ var getProductList = function (currentMbls) {
                obj = jQuery.parseJSON(xhr.responseText);
               items = obj;
 
-          $.each(items, function (index) {
-          	var temp_obj = items[index];
+             $.each(items, function (index) {
+            var temp_obj = items[index];
            
                     if (temp_obj.shipping){
                     temp_obj["free_shipping"]   = temp_obj.shipping.free_shipping;
-                    temp_obj["shipping_method"] = temp_obj.shipping.mode;
+                    temp_obj["shipping_mode"] = temp_obj.shipping.mode;
                   }
-             storeItems.push(temp_obj);
-            storeItems.push(items[index]);
-            console.log(storeItems[index]);
 
-            }); 
-               
-                countCalls ++;
+                      if (temp_obj.variations){
+                        $.each(temp_obj.variations, function (variationIndex) {
+                          var temp_variation = temp_obj;
+                          temp_variation["seller_custom_field"] =  temp_obj.variations[variationIndex].seller_custom_field;
+                                    storeItems.push(temp_variation);
+                         }); 
+                  }else{
+                      
+              storeItems.push(temp_obj);
+    
+                  }
+
+                   
+          }); 
+		
+              countCalls ++;
              if (countCalls >=  totalProductPages) {
            buildHtmlTable(storeItems);
             EnableCSV();
