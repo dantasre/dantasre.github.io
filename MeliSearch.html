@@ -251,9 +251,6 @@ var getProductList = function (currentMbls) {
                                   }else {
                                     temp_obj["seller_custom_field"] = temp_obj.variations[i].seller_custom_field;
                                    }
-
-
-                                
                                  }
                                    storeItems.push(temp_obj);
                                    delete temp_obj["variations"];
@@ -284,23 +281,21 @@ var getProductList = function (currentMbls) {
 
 
 
-  function createVariations(item, index) {
-  let variation = item; 
-    
-  item.seller_custom_field = item.seller_custom_field[index].seller_custom_field; 
-  storeItems.push(item);
-
- }
-
-
 //Retorna os dados de paginação
  function getPages(){
  appUsr = document.getElementById("appUsr").value.trim(); 
  sellerID =  getSellerID(appUsr);
 
  var xhr = new XMLHttpRequest();
+
    url ="https://api.mercadolibre.com/users/"+ sellerID+"/items/search?search_type=scan&limit=100&access_token="+ appUsr;
 xhr.onreadystatechange = function() {
+  if (this.status != 200) {
+     
+      $('#storeItemsQty').prop('style', "color:red");
+      document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS]";
+  }
+
     if (this.readyState == 4 && this.status == 200) {
         var response = JSON.parse(this.responseText);
         totalItems = response.paging.total;
@@ -308,6 +303,7 @@ xhr.onreadystatechange = function() {
         totalPages = totalItems / 100 + 1;
 
       getMLBList(url);
+        $('#storeItemsQty').prop('style', "color:black");
        document.getElementById("storeItemsQty").textContent="  [QUANTIDADE DE ANÚNCIOS: "+ totalItems+ "]";
 
     }
@@ -570,7 +566,6 @@ return last;
 
 }
   </script>
-
 
 </body>
 </html>
