@@ -113,7 +113,9 @@ var countCalls = 0;
    items = obj;   
                 
    $.each(items, function (index) {
+
     if(items[index].tags.required == true || items[index].tags.catalog_required == true)
+
     attributesRequired.push(items[index]);
     
     //document.getElementById("message").textContent = jsonVotes;
@@ -159,31 +161,48 @@ var countCalls = 0;
    
  function getShippingMethods() {
   ClearTable();
+
   appUsr = document.getElementById("appUsr").value.trim(); 
   sellerID =  getSellerID(appUsr);
 
-  var visibleAttributes = [];
-    var xhr = new XMLHttpRequest();
+  var shippingMethods = {};
+ var xhr = new XMLHttpRequest();
    
     xhr.open("GET", "https://api.mercadolibre.com/users/"+sellerID +"?access_token="+ appUsr, true);
         xhr.withCredentials = false;
-      xhr.onload = function () {
-   
+ 
+          xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+
+    
+   xhr.onload = function () {
+  
    var obj = jQuery.parseJSON(xhr.responseText);
    var items = [];
-   items = obj.shipping_modes;    
+   items = obj.shipping_modes; 
+   let shippingModes = [];   
   
-      visibleAttributes.push(items);      
+      $.each(items, function (index) {
+     shippingMethods = {
+                          shipping_modes: items[index]
+                       }
+   
+      shippingModes.push(shippingMethods);
+   });
+   
+    buildHtmlTable(shippingModes);
+    EnableCSV();
           
-    if(visibleAttributes.length != 0){
-        buildHtmlTable(visibleAttributes);
-        EnableCSV();
-      }else{
-        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
-      }
    };
    xhr.send();
    }
+
+
 
 
 //Cria variáveis globais para os métodos abaixo
@@ -291,9 +310,10 @@ var getProductList = function (currentMbls) {
    url ="https://api.mercadolibre.com/users/"+ sellerID+"/items/search?search_type=scan&limit=100&access_token="+ appUsr;
 xhr.onreadystatechange = function() {
   if (this.status != 200) {
-     
+       var response = JSON.parse(this.responseText);
       $('#storeItemsQty').prop('style', "color:red");
-      document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS]";
+      document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+     
   }
 
     if (this.readyState == 4 && this.status == 200) {
@@ -380,27 +400,54 @@ function getMLBList(url) {
 
     var xhr = new XMLHttpRequest();
    
+
+ xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+
+
     xhr.open("GET", url , true);
         xhr.withCredentials = false;
       xhr.onload = function () {
    
-   var obj = jQuery.parseJSON(xhr.responseText);
-   var list = obj.status.list.allow; 
-    var codes = [];
-    
+     var obj = jQuery.parseJSON(xhr.responseText);
+     var list = obj.status.list.allow; 
+     var codes = [];
+     let seller = {};
+     let sellerPendingData = [];
+
      if(obj.status.list.allow.codes){
- $.each(obj.status.list.allow.codes, function (index) {
-       codes.push(obj.list.allow.codes[index], list);
+      $.each(obj.status.list.allow.codes, function (index) {
+        seller = {
+          allow: list,
+          codes: obj.list.allow.codes[index]
+
+       }
+
+       sellerPendingData.push(seller);
        //document.getElementById("message").textContent = jsonVotes;
 
    });}
  else{
-  codes.push(["Apto a publicar","Pendências"]);
- codes.push([list," Não possui pendências"]);
- 
+      seller = {
+          allow_list: list,
+          codes: "Não Possui pendências"
+
+       }
+
+       sellerPendingData.push(seller);
+
+/*  codes.push(["Apto a publicar","Pendências"]);
+   codes.push([list," Não possui pendências"]);
+*/
+
 }
-        buildHtmlTable(codes);
-        console.log(codes);
+        buildHtmlTable(sellerPendingData);
+        console.log(seller);
         EnableCSV();
  
    }
@@ -432,7 +479,7 @@ function getMLBList(url) {
     </tr>
     <tr>
     <td>
-        <input type="text" id="category" class="input category" placeholder="Categoria" />
+        <input type="text" id="category" class="input category" placeholder="Código da Categoria [MLB]" />
    
         <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getCategoryAttributes()"> Pesquisar Atributos obrigatórios</button>
         <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getVisibleAttributes()"> Pesquisar Ficha Técnica</button>
