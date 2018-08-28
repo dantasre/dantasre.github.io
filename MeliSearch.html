@@ -309,7 +309,7 @@ var getProductList = function (currentMbls) {
 
    url ="https://api.mercadolibre.com/users/"+ sellerID+"/items/search?search_type=scan&limit=100&access_token="+ appUsr;
 xhr.onreadystatechange = function() {
-  if (this.status != 200) {
+  if (this.readyState == 4 && this.status != 200) {
        var response = JSON.parse(this.responseText);
       $('#storeItemsQty').prop('style', "color:red");
       document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
@@ -321,7 +321,7 @@ xhr.onreadystatechange = function() {
         totalItems = response.paging.total;
         limit = response.paging.limit; 
         totalPages = totalItems / 100 + 1;
-
+        clearTable();
       getMLBList(url);
         $('#storeItemsQty').prop('style', "color:black");
        document.getElementById("storeItemsQty").textContent="  [QUANTIDADE DE ANÚNCIOS: "+ totalItems+ "]";
