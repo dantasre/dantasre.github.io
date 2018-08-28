@@ -158,7 +158,7 @@ var countCalls = 0;
    }
    
  function getShippingMethods() {
-  clearTable();
+  ClearTable();
   appUsr = document.getElementById("appUsr").value.trim(); 
   sellerID =  getSellerID(appUsr);
 
@@ -373,7 +373,7 @@ function getMLBList(url) {
  }
 
  function GetSellerPendingData(){
-  clearTable();
+  ClearTable();
  appUsr = document.getElementById("appUsr").value.trim(); 
  sellerID =  getSellerID(appUsr);
   url = "https://api.mercadolibre.com/users/"+ sellerID +"?access_token="+ appUsr;
