@@ -321,7 +321,7 @@ xhr.onreadystatechange = function() {
         totalItems = response.paging.total;
         limit = response.paging.limit; 
         totalPages = totalItems / 100 + 1;
-        clearTable();
+        ClearTable();
       getMLBList(url);
         $('#storeItemsQty').prop('style', "color:black");
        document.getElementById("storeItemsQty").textContent="  [QUANTIDADE DE ANÚNCIOS: "+ totalItems+ "]";
