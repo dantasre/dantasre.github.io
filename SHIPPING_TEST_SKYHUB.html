@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Pesquisa de dados da API Mercado Livre</title>
+<head>
+   <style>
+      h2 {
+      font-size: 22px;
+      font-family: sans-serif;
+      }
+      img {
+      float: left;
+      }
+      h3 {
+      font-size: 28px;
+      font-family: 'Lato', sans-serif;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      padding-left: 0px;
+      height: 40px;
+      color: #000080;
+      width: 100%;
+      }
+     
+    
+     input[type=text] {
+      width: 25%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      background-image: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-32.png');
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+     .orderList {
+      width: 70%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+      input[type=text]:focus {
+      width: 40%;
+      }
+      .button {background-color: #4682B4;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Lato', sans-serif;
+      font-weight: bold;
+    
+      }
+      .buttonExport{
+      background-color: #C0C0C0;
+      } /* Gray */
+      table {
+      border-collapse: collapse;
+      width: 100%;
+      }
+      .export{
+      background-color: #C0C0C0;
+      }
+    .buttonclearTable {
+    background-color: #F95D5D;
+    background-repeat: no-repeat;
+      background-size: 40px 40px;
+    
+    }
+      th, td {
+      padding: 3px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      }
+      th
+{      background-color: #4682B4;
+      color: white;
+      }
+      tr:nth-child(even){
+      background-color: #f2f2f2;
+      }
+   </style>
+
+   <script type="text/javascript">
+     
+
+
+ function calculateShipping() {
+
+ var accountId = document.getElementById("accountId").value;
+ var zipCode = document.getElementById("zipCode").value;
+ var skuId = document.getElementById("skuId").value;
+ var quantity = document.getElementById("quantity").value;
+ var url =   "http://fred.skyhub.com.br/b2w/"+ accountId +"/freight?skuId="+ skuId +","+ quantity +"&zipCode=" + zipCode
+ var xhr = new XMLHttpRequest();
+
+ xhr.open("GET", url, true);
+
+//Envia o cabeçalho informativo adequado junto com a requisição.
+xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+xhr.onreadystatechange = function() {//Call a function when the state changes.
+    if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
+        // Requisição finalizada. Faça o processamento aqui.
+        var obj = jQuery.parseJSON(xhr.responseText)
+        console.log(obj.freights);
+        buildHtmlTable(obj.freights);
+    }
+}
+xhr.send(); 
+
+// xhr.send(new Blob()); 
+// xhr.send(new Int8Array()); 
+// xhr.send(document);
+
+}
+
+function listOrders(){
+ sellerId = document.getElementById("sellerId").value;
+ var orderList = document.getElementById('orderList').value;
+
+ var orders = orderList.split(",");
+
+
+  for (i = 0; i < orders.length; i++) {
+        notifyOrders(orders[i]);
+    }
+ }
+
+
+function forma() {
+  var currentDate = new Date();
+  date = currentDate.getDate();
+  month = currentDate.getMonth();
+  year = currentDate.getYear();
+}
+
+   </script>
+</head>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="src/table2csv.js"></script>
+<body>
+   <table id="cabecalho" border="0" bgcolor="#FFFFF" >
+      <tr>
+         <td>
+            <h3>Cálculo de Frete SkyHub</h3>
+         </td>
+      </tr>
+   </table>
+<table>
+  <thead>
+    <tr>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" id="accountId" class="input category" placeholder="Account Fred" />
+        <br>
+        <input type="text" id="zipCode" class="input category" placeholder="CEP (sem traços)" />
+        <br>
+        <input type="text" id="skuId" class="input category" placeholder="SKU SkyHub" />
+        <br>
+        <input type="text" id="quantity" class="input category" placeholder="Quantidade" />
+
+
+        <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="calculateShipping()">Calcular o Frete</button>
+ 
+    </td>
+    </tr>
+  </thead>
+</table>
+<br>
+<button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
+    <button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
+<br>
+</table>
+   <table id="excelDataTable" border="1">
+    <tbody></tbody>
+   </table>
+   <span id="message"></span>
+
+<script>
+  /* table related functions */
+    
+function ClearTable(){
+ $("#excelDataTable tr").remove();  
+ document.getElementById("message").textContent="";
+ MLBList = [];
+ EnableListProducts();
+ DisableCSV();
+}  
+function EnableCSV(){
+     var property = document.getElementById("export");
+              property.style.backgroundColor = "#333300";
+              $('#export').prop('disabled', false); //TO DISABLED 
+}
+function DisableCSV(){
+     var property = document.getElementById("export");
+              property.style.backgroundColor = "#C0C0C0";
+              $('#export').prop('disabled', true); //TO DISABLED 
+}
+function DisableListProducts() {
+    var property = document.getElementById("ListProducts");
+              property.style.backgroundColor = "#C0C0C0"; //gray
+              $('#ListProducts').prop('disabled', true);
+}
+function EnableListProducts() {
+    var property = document.getElementById("ListProducts");
+              property.style.backgroundColor = "#4682B4";
+              $('#ListProducts').prop('disabled', false);
+}
+ 
+/* BUTTON EXPORT CLICK */
+  $("#export").click(function(){
+    $("#excelDataTable").table2csv({
+      separator: '§',
+      newline: '\n',
+      quoteFields: true,
+      filename: 'table.csv'
+    });
+  })
+ // Builds the HTML Table out of myList json data from Ivy restful service.
+    function buildHtmlTable(myList,source) {
+        var columns = addAllColumnHeaders(myList);
+    
+        for (var i = 0 ; i < myList.length ; i++) {
+            var row$ = $('<tr/>');
+            for (var colIndex = 0 ; colIndex < columns.length ; colIndex++) {
+                var cellValue = myList[i][columns[colIndex]];
+    
+                if (cellValue == null) { cellValue = ""; }
+    
+                row$.append($('<td/>').html(cellValue));
+            }
+            $("#excelDataTable").append(row$);
+        }
+    }
+    
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records
+function addAllColumnHeaders(myList){
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+    
+        for (var i = 0 ; i < myList.length ; i++) {
+            var rowHash = myList[i];
+            for (var key in rowHash) {
+                if ($.inArray(key, columnSet) == -1){
+                    columnSet.push(key);
+                    headerTr$.append($('<th/>').html(key));
+                }
+            }
+        }
+        $("#excelDataTable").append(headerTr$);
+    
+        return columnSet;
+    }
+function getSellerID(appUser){
+var last = appUser.substring(appUser.lastIndexOf("-") + 1, appUser.length);
+return last;
+}
+  </script>
+
+</body>
+</html>
