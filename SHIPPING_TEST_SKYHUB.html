@@ -30,7 +30,7 @@
       font-size: 20px;
       font-family: sans-serif;
       background-color: white;
-      background-image: url('https://cors.io/?u=https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-32.png');
+      background-image: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-32.png');
       background-repeat: no-repeat;
       background-size: 40px 40px;
       padding: 12px 20px 12px 40px;
@@ -115,7 +115,7 @@
  var zipCode = document.getElementById("zipCode").value;
  var skuId = document.getElementById("skuId").value;
  var quantity = document.getElementById("quantity").value;
- var url =   "https://fred.skyhub.com.br/b2w/"+ accountId +"/freight?skuId="+ skuId +","+ quantity +"&zipCode=" + zipCode
+ var url =   "https://cors.io/?u=http://fred.skyhub.com.br/b2w/"+ accountId +"/freight?skuId="+ skuId +","+ quantity +"&zipCode=" + zipCode
  var xhr = new XMLHttpRequest();
 
  xhr.open("GET", url, true);
