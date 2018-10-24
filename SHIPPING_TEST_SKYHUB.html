@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta charset="UTF-8">
-<title>Cálculo de frete SkyHub</title>
+<title>Cálculo de frete SkyHub - Tabela</title>
 <head>
    <style>
       h2 {
@@ -110,12 +110,11 @@
 
 
  function calculateShipping() {
-
  var accountId = document.getElementById("accountId").value;
  var zipCode = document.getElementById("zipCode").value;
  var skuId = document.getElementById("skuId").value;
  var quantity = document.getElementById("quantity").value;
- var url =   "http://cors.io/?http://fred.skyhub.com.br/b2w/"+ accountId +"/freight?skuId="+ skuId +","+ quantity +"&zipCode=" + zipCode
+ var url =   "http://fred.skyhub.com.br/b2w/"+ accountId +"/freight?skuId="+ skuId +","+ quantity +"&zipCode=" + zipCode
  var xhr = new XMLHttpRequest();
 
  xhr.open("GET", url, true);
@@ -125,11 +124,17 @@ xhr.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
 
 xhr.onreadystatechange = function() {//Call a function when the state changes.
     if(xhr.readyState == XMLHttpRequest.DONE && xhr.status == 200) {
-        // Requisição finalizada. Faça o processamento aqui.
+       // Requisição finalizada. Faça o processamento aqui.
         var obj = jQuery.parseJSON(xhr.responseText)
-        console.log(obj.freights);
-        buildHtmlTable(obj.freights);
-    }
+        console.log(obj);
+        if (obj.freights.length == 0) {
+          document.getElementById("apiResponse").textContent= xhr.status + "   [CEP e/ou Peso Não atendido pela tabela]";
+          
+        }else {
+          buildHtmlTable(obj.freights);
+        }
+        
+    } 
 }
 xhr.send(); 
 
@@ -167,7 +172,7 @@ function forma() {
    <table id="cabecalho" border="0" bgcolor="#FFFFF" >
       <tr>
          <td>
-            <h3>Cálculo de Frete SkyHub</h3>
+            <h3>Cálculo de Frete SkyHub - B2W</h3>
          </td>
       </tr>
    </table>
@@ -184,10 +189,7 @@ function forma() {
         <input type="text" id="skuId" class="input category" placeholder="SKU SkyHub" />
         <br>
         <input type="text" id="quantity" class="input category" placeholder="Quantidade " />
-
-
-        <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="calculateShipping()">Calcular o Frete</button>
- 
+       <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="calculateShipping()">Calcular o Frete</button>
     </td>
     </tr>
   </thead>
@@ -196,6 +198,7 @@ function forma() {
 <button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
     <button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
 <br>
+<span id="apiResponse"></span>
 </table>
    <table id="excelDataTable" border="1">
     <tbody></tbody>
@@ -206,6 +209,7 @@ function forma() {
   /* table related functions */
     
 function ClearTable(){
+ document.getElementById("apiResponse").textContent="";
  $("#excelDataTable tr").remove();  
  document.getElementById("message").textContent="";
  MLBList = [];
