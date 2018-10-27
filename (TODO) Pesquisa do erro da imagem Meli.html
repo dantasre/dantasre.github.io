@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Pesquisa de dados da API Mercado Livre</title>
+<head>
+   <style>
+      h2 {
+      font-size: 22px;
+      font-family: sans-serif;
+      }
+      img {
+      float: left;
+      }
+      h3 {
+      font-size: 28px;
+      font-family: 'Lato', sans-serif;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      padding-left: 0px;
+      height: 40px;
+      color: #000080;
+      width: 100%;
+      }
+      input[type=text] {
+      width: 25%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      background-image: url('https://cdn1.iconfinder.com/data/icons/hawcons/32/698627-icon-111-search-32.png');
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+    
+    
+      input[type=text]:focus {
+      width: 25%;
+      }
+      .button {background-color: #4682B4;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Lato', sans-serif;
+      font-weight: bold;
+    
+      }
+      .buttonExport{
+      background-color: #C0C0C0;
+      } /* Gray */
+      table {
+      border-collapse: collapse;
+      width: 100%;
+      }
+      .export{
+      background-color: #C0C0C0;
+      }
+    .buttonclearTable {
+    background-color: #F95D5D;
+    background-repeat: no-repeat;
+      background-size: 40px 40px;
+    
+    }
+      th, td {
+      padding: 3px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      }
+      th
+{      background-color: #4682B4;
+      color: white;
+      }
+      tr:nth-child(even){
+      background-color: #f2f2f2;
+      }
+   </style>
+</head>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="src/table2csv.js"></script>
+<script>
+//Pesquisa os atributos obrigatórios da Categoria
+//variável publica
+var countCalls = 0;
+ function getCategoryAttributes() {
+     ClearTable();
+    var category = document.getElementById("category").value;
+   var attributesRequired = [];
+    var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/attributes", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+   
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var items = [];
+      
+   items = obj;   
+                
+   $.each(items, function (index) {
+    if(items[index].tags.required == true || items[index].tags.catalog_required == true)
+    attributesRequired.push(items[index]);
+    
+    //document.getElementById("message").textContent = jsonVotes;
+   });
+                    
+      if(attributesRequired.length != 0){
+        buildHtmlTable(attributesRequired);
+        EnableCSV();
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
+   };
+   xhr.send();
+   }
+   
+   //Pesquisa os atributos visíveis da Categoria
+ function getVisibleAttributes() {
+  ClearTable();
+    var category = document.getElementById("category").value;
+  var visibleAttributes = [];
+    var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category +"/technical_specifications", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+   
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var items = [];
+   items = obj.table.sections[0].attributes;    
+  
+   $.each(items, function (index) {
+    visibleAttributes.push(items[index]);
+   });
+                
+      if(visibleAttributes.length != 0){
+        buildHtmlTable(visibleAttributes);
+        EnableCSV();
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
+   };
+   xhr.send();
+   }
+   
+ function getShippingMethods() {
+  ClearTable();
+  appUsr = document.getElementById("appUsr").value.trim(); 
+  sellerID =  getSellerID(appUsr);
+  var shippingMethods = {};
+ var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/users/"+sellerID +"?access_token="+ appUsr, true);
+        xhr.withCredentials = false;
+ 
+          xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+    
+   xhr.onload = function () {
+  
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var items = [];
+   items = obj.shipping_modes; 
+   let shippingModes = [];   
+  
+      $.each(items, function (index) {
+     shippingMethods = {
+                          shipping_modes: items[index]
+                       }
+   
+      shippingModes.push(shippingMethods);
+   });
+   
+    buildHtmlTable(shippingModes);
+    EnableCSV();
+          
+   };
+   xhr.send();
+   }
+
+
+ function getCategoryShippingModes() {
+     ClearTable();
+    var category = document.getElementById("category").value;
+   var cateogoryShippingModes = [];
+    var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/categories/"+ category, true);
+    xhr.setRequestHeader('Content-Type', 'text/plain');
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+   
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var shipping_modes = [];
+      
+   shipping_modes = obj.settings.shipping_modes;   
+                
+   $.each(shipping_modes, function (index) {
+    shippingMethods = {
+                          shipping_modes: shipping_modes[index]
+                       }
+
+    cateogoryShippingModes.push(shippingMethods);
+    
+    //document.getElementById("message").textContent = jsonVotes;
+   });
+                    
+      if(cateogoryShippingModes.length != 0){
+        buildHtmlTable(cateogoryShippingModes);
+        EnableCSV();
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
+   };
+   xhr.send();
+   }
+
+
+//Cria variáveis globais para os métodos abaixo
+   var totalPages;
+   var offset;
+   var totalItems;
+   var storeItems = [];
+   var totalCalls = 0;
+   var limit;
+   var MLBList = [];
+   var currentIds =[];
+   var totalProductPages;
+   var currentPage;
+   var items = [];
+   var increment = 0;
+   var to = 49;
+   var itemId;
+   var itemPrice;
+   var itemsQuantity;
+   var numeroDePesquisas;
+   var MLBFlatList =[];
+   var scrollId = "";
+   var appUsr ="";
+   var sellerID ="";
+//Retorna a lista de Produtos
+var getProductList = function (currentMbls) {
+  /* TRATAR OS PRODUTOS!!! */
+    var obj;
+    var xhr = new XMLHttpRequest();
+    var url = "https://api.mercadolibre.com/items?ids=" + currentMbls +"&attributes=id,title,price,available_quantity,status,shipping,seller_id,variations.seller_custom_field,s#json";
+ 
+     xhr.withCredentials = false;
+     xhr.onreadystatechange = function () {
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+               obj = jQuery.parseJSON(xhr.responseText);
+              items = obj;
+             $.each(items, function (index) {
+              var temp_obj = items[index];
+           
+                    if (temp_obj.shipping){
+                       temp_obj["shipping_mode"] =  temp_obj.shipping.mode;  
+                        if(temp_obj.shipping.free_shipping == true){
+                          temp_obj["free_shipping"]  = "true";
+                         
+                        }else {
+                            temp_obj["free_shipping"]  = "false";
+                              }                      
+                       delete temp_obj["shipping"];
+                      }
+                          if (temp_obj.variations){
+                              
+                             for (i = 0; i < temp_obj.variations.length; i++) {
+                                  
+                                  if (i>0) {
+                                  temp_obj["seller_custom_field"] = temp_obj.variations[i].seller_custom_field +", "+ temp_obj.seller_custom_field;
+                                  }else {
+                                    temp_obj["seller_custom_field"] = temp_obj.variations[i].seller_custom_field;
+                                   }
+                                 }
+                                   storeItems.push(temp_obj);
+                                   delete temp_obj["variations"];
+                             }else{ 
+                      
+                          storeItems.push(temp_obj);
+    
+                  }
+                   
+          }); 
+    
+              countCalls ++;
+             if (countCalls >=  totalProductPages) {
+           buildHtmlTable(storeItems);
+            EnableCSV();
+        }
+    };
+}
+  xhr.onload = function () {
+   
+   };
+    xhr.open("GET", url , true);
+    xhr.send();
+ }
+//Retorna os dados de paginação
+ function getPages(){
+ appUsr = document.getElementById("appUsr").value.trim(); 
+ sellerID =  getSellerID(appUsr);
+ var xhr = new XMLHttpRequest();
+   url ="https://api.mercadolibre.com/users/"+ sellerID+"/items/search?search_type=scan&limit=100&access_token="+ appUsr;
+xhr.onreadystatechange = function() {
+  if (this.readyState == 4 && this.status != 200) {
+       var response = JSON.parse(this.responseText);
+      $('#storeItemsQty').prop('style', "color:red");
+      document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+     
+  }
+    if (this.readyState == 4 && this.status == 200) {
+        var response = JSON.parse(this.responseText);
+        totalItems = response.paging.total;
+        limit = response.paging.limit; 
+        totalPages = totalItems / 100 + 1;
+        ClearTable();
+      getMLBList(url);
+        $('#storeItemsQty').prop('style', "color:black");
+       document.getElementById("storeItemsQty").textContent="  [QUANTIDADE DE ANÚNCIOS: "+ totalItems+ "]";
+    }
+};
+   
+     xhr.open("GET", url , true);
+     xhr.withCredentials = false;
+     xhr.send();
+}     
+//CARREGA A LISTA DE MLB
+function getMLBList(url) {
+   DisableListProducts();
+    var xhr = new XMLHttpRequest();
+   
+     xhr.open("GET", url, true);
+     xhr.withCredentials = false;
+     xhr.onreadystatechange = function () {
+        if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 200) {
+                     
+              var obj = jQuery.parseJSON(xhr.responseText);
+               var mlbs = obj.results;    
+              scrollId = obj.scroll_id;
+                countCalls ++;
+              
+                   $.each(mlbs, function (index) {
+                     MLBList.push(mlbs[index]);
+                    });
+                   
+                 if (countCalls <= totalPages) {
+                   url ="https://api.mercadolibre.com/users/"+ sellerID +"/items/search?search_type=scan&limit=100&access_token="+ appUsr+"&scroll_id="+ scrollId;
+                         getMLBList(url);
+                 
+              }else {
+             countCalls = 0;
+             var arrayToGet; 
+            totalProductPages = (MLBList.length / 50);
+           
+             for(i = 0; i < totalProductPages +1; i++){
+                                
+                   
+                    increment = i * 50; 
+                    to = increment + 50;  
+                    arrayToGet = MLBList.slice(increment,to);
+                    if (arrayToGet != 0){
+                        getProductList(MLBList.slice(increment,to));
+                    }
+                  }
+            
+              }
+    };
+  }
+  xhr.onload = function () {}
+  
+    xhr.send();
+ }
+ function GetSellerPendingData(){
+  ClearTable();
+ appUsr = document.getElementById("appUsr").value.trim(); 
+ sellerID =  getSellerID(appUsr);
+  url = "https://api.mercadolibre.com/users/"+ sellerID +"?access_token="+ appUsr;
+    var xhr = new XMLHttpRequest();
+   
+ xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+    xhr.open("GET", url , true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+   
+     var obj = jQuery.parseJSON(xhr.responseText);
+     var list = obj.status.list.allow; 
+     var codes = [];
+     let seller = {};
+     let sellerPendingData = [];
+     if(obj.status.list.allow.codes){
+      $.each(obj.status.list.allow.codes, function (index) {
+        seller = {
+          allow: list,
+          codes: obj.list.allow.codes[index]
+       }
+       sellerPendingData.push(seller);
+   });}
+ else{
+      seller = {
+          allow_list: list,
+          codes: "Não Possui pendências"
+       }
+       sellerPendingData.push(seller);
+
+}
+        buildHtmlTable(sellerPendingData);
+        console.log(seller);
+        EnableCSV();
+ 
+   }
+ 
+   xhr.send();
+ }
+
+ // Pesquisa as imagens do produto no Meli
+
+  function getProductImage() {
+  ClearTable();
+  imaageList = [];
+  var mlb = document.getElementById("MLB").value;
+  
+  var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/items/"+ mlb +"#json", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+
+        xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var images = [];
+   images = obj.pictures;    
+  
+   $.each(images, function (index) {
+    images[index].url = "<img src=" + images[index].url + " height='60' width='60' >";
+    imaageList.push(images[index]);
+   });
+                
+      if(imaageList.length != 0){
+        buildHtmlTable(imaageList);
+        EnableCSV();
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
+   };
+   xhr.send();
+   }
+
+// Pesquisa o S
+function getProductSKU() {
+  ClearTable();
+  skuList = [];
+  variationList = [];
+  var mlb = document.getElementById("MLB").value;
+  
+  var xhr = new XMLHttpRequest();
+   
+    xhr.open("GET", "https://api.mercadolibre.com/items/"+ mlb +"#json", true);
+        xhr.withCredentials = false;
+      xhr.onload = function () {
+
+        xhr.onreadystatechange = function () {
+          if(xhr.readyState === XMLHttpRequest.DONE && xhr.status === 400 || xhr.readyState === XMLHttpRequest.DONE && xhr.status === 401) {
+                var response = JSON.parse(this.responseText);
+                 $('#storeItemsQty').prop('style', "color:red");
+               document.getElementById("storeItemsQty").textContent="   [DADOS INVÁLIDOS - "+ response.message+"]";
+          }
+        }
+
+   var obj = jQuery.parseJSON(xhr.responseText);
+   var variations = [];
+   variations = obj.variations;    
+   
+
+   $.each(variations, function (index) {
+    sku = {
+          seller_custom_field: variations[index].seller_custom_field
+          };
+
+    variationList.push(sku);
+   });
+                
+      if(variationList.length != 0){
+        buildHtmlTable(variationList);
+        EnableCSV();
+      }else{
+        document.getElementById("message").textContent="Categoria não encontrada ou não possui atributos obrigatórios!";
+      }
+   };
+   xhr.send();
+   }
+
+
+</script>
+<body>
+   <table id="cabecalho" border="0" bgcolor="#FFE14D" >
+      <tr>
+         <td><img src="https://logodownload.org/wp-content/uploads/2016/08/Mercado-Livre-logo.png" height="80" width="120" alt="Logotipo"> </td>
+         <td>
+            <h3>Pesquisa de dados Mercado Livre</h3>
+         </td>
+      </tr>
+   </table>
+<table>
+  <thead>
+    <tr>
+      <td>
+      PESQUISAS DE CATEGORIA
+    </td>
+    </tr>
+    <tr>
+    <td>
+        <input type="text" id="category" class="input category" placeholder="Código da Categoria [MLB]" />
+   
+        <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getCategoryAttributes()"> Pesquisar Atributos obrigatórios</button>
+        <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getVisibleAttributes()"> Pesquisar Ficha Técnica</button>
+        <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getCategoryShippingModes()"> Pesquisar Métodos de Envio</button>
+    </td>
+    </tr>
+  </thead>
+</table>
+<br>
+<table>
+  <thead>
+    <tr>
+      <td>
+      PESQUISAS DE ANÚNCIO
+    </td>
+    </tr>
+    <tr>
+    <td>
+        <input type="text" id="MLB" class="input category" placeholder="MLB DO PRODUTO" />
+   
+        <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getProductImage()"> Pesquisa Imagens do anúncio</button>
+        <button class="button buttonGetList"  value="Atributos" id="Atributos" onclick="getProductSKU()"> Pesquisa SKU Parceiro</button>
+        
+        
+    </td>
+    </tr>
+  </thead>
+</table>
+<br>
+<table>
+  <thead>
+    <tr>
+      <td>
+      PESQUISA DE ANÚNCIOS E DADOS DO SELLER <span id="storeItemsQty"></span>
+    </td>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" id="appUsr" class="input category" placeholder="APP_USR" />
+
+        <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="getPages()"> Listar Anúncios</button>
+
+    <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="getShippingMethods()"> Pesquisar Métodos de Envio</button>
+
+     <button class="button buttonGetList" value="Visiveis" id="Visiveis" onclick="GetSellerPendingData()"> Pesquisar Dados Pendentes</button>
+
+    </td>
+    </tr>
+  </thead>
+</table>
+<br>
+<button class="button buttonclearTable" value="clearTable" id="clearTable"  onclick="ClearTable()"> Limpar Tabela</button>
+    <button class="button buttonExport" value="Visiveis" id="export" data-export="export" disabled="disabled">Exportar CSV</button>
+<br>
+</table>
+   <table id="excelDataTable" border="1">
+    <tbody></tbody>
+   </table>
+   <span id="message"></span>
+
+<script>
+  /* table related functions */
+    
+function ClearTable(){
+ $("#excelDataTable tr").remove();  
+ document.getElementById("message").textContent="";
+ MLBList = [];
+ EnableListProducts();
+ DisableCSV();
+}  
+function EnableCSV(){
+     var property = document.getElementById("export");
+              property.style.backgroundColor = "#333300";
+              $('#export').prop('disabled', false); //TO DISABLED 
+}
+function DisableCSV(){
+     var property = document.getElementById("export");
+              property.style.backgroundColor = "#C0C0C0";
+              $('#export').prop('disabled', true); //TO DISABLED 
+}
+function DisableListProducts() {
+    var property = document.getElementById("ListProducts");
+              property.style.backgroundColor = "#C0C0C0"; //gray
+              $('#ListProducts').prop('disabled', true);
+}
+function EnableListProducts() {
+    var property = document.getElementById("ListProducts");
+              property.style.backgroundColor = "#4682B4";
+              $('#ListProducts').prop('disabled', false);
+}
+ 
+/* BUTTON EXPORT CLICK */
+  $("#export").click(function(){
+    $("#excelDataTable").table2csv({
+      separator: '§',
+      newline: '\n',
+      quoteFields: true,
+      filename: 'table.csv'
+    });
+  })
+ // Builds the HTML Table out of myList json data from Ivy restful service.
+    function buildHtmlTable(myList,source) {
+        var columns = addAllColumnHeaders(myList);
+    
+        for (var i = 0 ; i < myList.length ; i++) {
+            var row$ = $('<tr/>');
+            for (var colIndex = 0 ; colIndex < columns.length ; colIndex++) {
+                var cellValue = myList[i][columns[colIndex]];
+    
+                if (cellValue == null) { cellValue = ""; }
+    
+                row$.append($('<td/>').html(cellValue));
+            }
+            $("#excelDataTable").append(row$);
+        }
+    }
+    
+    // Adds a header row to the table and returns the set of columns.
+    // Need to do union of keys from all records as some records may not contain
+    // all records
+function addAllColumnHeaders(myList){
+        var columnSet = [];
+        var headerTr$ = $('<tr/>');
+    
+        for (var i = 0 ; i < myList.length ; i++) {
+            var rowHash = myList[i];
+            for (var key in rowHash) {
+                if ($.inArray(key, columnSet) == -1){
+                    columnSet.push(key);
+                    headerTr$.append($('<th/>').html(key));
+                }
+            }
+        }
+        $("#excelDataTable").append(headerTr$);
+    
+        return columnSet;
+    }
+function getSellerID(appUser){
+var last = appUser.substring(appUser.lastIndexOf("-") + 1, appUser.length);
+return last;
+}
+  </script>
+
+</body>
+</html>
