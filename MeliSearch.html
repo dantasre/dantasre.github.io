@@ -194,8 +194,6 @@ var countCalls = 0;
    };
    xhr.send();
    }
-
-
  function getCategoryShippingModes() {
      ClearTable();
     var category = document.getElementById("category").value;
@@ -216,7 +214,6 @@ var countCalls = 0;
     shippingMethods = {
                           shipping_modes: shipping_modes[index]
                        }
-
     cateogoryShippingModes.push(shippingMethods);
     
     //document.getElementById("message").textContent = jsonVotes;
@@ -231,8 +228,6 @@ var countCalls = 0;
    };
    xhr.send();
    }
-
-
 //Cria variáveis globais para os métodos abaixo
    var totalPages;
    var offset;
@@ -268,7 +263,7 @@ var getProductList = function (currentMbls) {
                obj = jQuery.parseJSON(xhr.responseText);
               items = obj;
              $.each(items, function (index) {
-              var temp_obj = items[index];
+              var temp_obj = items[index].body;
            
                     if (temp_obj.shipping){
                        temp_obj["shipping_mode"] =  temp_obj.shipping.mode;  
