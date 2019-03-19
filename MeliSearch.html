@@ -368,13 +368,13 @@ function getMLBList(url) {
               }else {
              countCalls = 0;
              var arrayToGet; 
-            totalProductPages = (MLBList.length / 50);
+            totalProductPages = (MLBList.length / 20);
            
              for(i = 0; i < totalProductPages +1; i++){
                                 
                    
-                    increment = i * 50; 
-                    to = increment + 50;  
+                    increment = i * 20; 
+                    to = increment + 20;  
                     arrayToGet = MLBList.slice(increment,to);
                     if (arrayToGet != 0){
                         getProductList(MLBList.slice(increment,to));
