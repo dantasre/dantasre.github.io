@@ -96,6 +96,9 @@
     return columnSet;
   }
   function parseJson() {
+
+    clearTables();
+    document.getElementById("jsonInput").value;
     var jsonText = document.getElementById("jsonInput").value;
     var jsonData = JSON.parse(jsonText);
     var companyArray = [];
@@ -173,6 +176,19 @@
 
     return companyData;
   }
+
+  function clearTables(){
+    var toClear = document.getElementById("table_owners");
+  toClear.innerHTML = '';
+
+  toClear = document.getElementById("table_company");
+  toClear.innerHTML = '';
+
+  toClear = document.getElementById("table_legalRepresentatives");
+  toClear.innerHTML = '';
+
+  }
+
 </script>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
@@ -183,17 +199,17 @@
     <textarea type="text" id="jsonInput" class="input category" rows="25" cols="80" ></textarea>
     <br />
     <br />
-    <button class="button" value="dataView" id="dataView" onclick="parseJson()">
+    <button class="button"  id="dataView" onclick="parseJson()">
       Parse JSON
     </button>
   </div>
   <div> <b>LEGAL REPRESENTATIVES</b>
-    <table id="table_legalRepresentatives" border="1"></table>
+    <table class="pure-table pure-table-bordered"id="table_legalRepresentatives" border="1"></table>
   </div>
   <div><b>OWNERS</b>
-    <table id="table_owners"  border="1"></table>
+    <table class="pure-table pure-table-bordered"  id="table_owners"  border="1"></table>
   </div>
   <div> <b>COMPANY</b>
-    <table id="table_company" border="1"></table>
+    <table class="pure-table pure-table-bordered" id="table_company" border="1"></table>
   </div>
 </body>
