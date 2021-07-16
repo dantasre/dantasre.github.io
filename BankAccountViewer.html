@@ -103,18 +103,21 @@
     var jsonData = JSON.parse(jsonText);
     var companyArray = [];
     var companyAdress = addressParse(jsonData);
+    
+    if (jsonData.owners) {
+      jsonData.owners.forEach(phoneParse);
+      jsonData.owners.forEach(addressParse);
 
-    jsonData.owners.forEach(phoneParse);
-    jsonData.owners.forEach(addressParse);
+      buildTable(jsonData.owners, "#table_owners");
+      delete jsonData.owners;
+    }
+    if (jsonData.legalRepresentatives){ 
+      jsonData.legalRepresentatives.forEach(addressParse);
+      jsonData.legalRepresentatives.forEach(phoneParse);
 
-    jsonData.legalRepresentatives.forEach(addressParse);
-    jsonData.legalRepresentatives.forEach(phoneParse);
-
-    buildTable(jsonData.owners, "#table_owners");
-    delete jsonData.owners;
-
-    buildTable(jsonData.legalRepresentatives, "#table_legalRepresentatives");
-    delete jsonData.legalRepresentatives;
+      buildTable(jsonData.legalRepresentatives, "#table_legalRepresentatives");
+      delete jsonData.legalRepresentatives;
+    }
     companyArray.push(jsonData);
 
     buildTable(companyArray, "#table_company");
@@ -197,7 +200,7 @@
   <div>
         <h3><font color="black">Visualização de dados JSON</font></h3>
   
-    <textarea type="text" id="jsonInput" class="input category" rows="25" cols="80" ></textarea>
+    <textarea type="text" id="jsonInput" class="input category" rows="8" cols="80" ></textarea>
     <br />
     <br />
     <button class="button"  id="dataView" onclick="parseJson()">
