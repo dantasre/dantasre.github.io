@@ -1,0 +1,88 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/jszip.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.8.0/xlsx.js"></script>
+<script>
+  let globalPayload 
+
+    var ExcelToJSON = function() {
+        this.parseExcel = function(file) {
+        var reader = new FileReader();
+
+        reader.onload = function(e) {
+          var data = e.target.result;
+          var workbook = XLSX.read(data, {
+            type: 'binary'
+          });
+          
+            // Here is your object
+            var XL_row_object = XLSX.utils.sheet_to_json(workbook.Sheets["Payloads"]);
+            var json_object = JSON.stringify(XL_row_object);
+            //console.log(JSON.parse(json_object)[0]);
+            jQuery( '#xlx_json' ).val(json_object);
+
+            buildJsonPayload(json_object);
+         
+        };
+
+        reader.onerror = function(ex) {
+          console.log(ex);
+        };
+
+        reader.readAsBinaryString(file);
+      };
+  };
+
+  function handleFileSelect(evt) {
+    var files = evt.target.files; // FileList object
+    var xl2json = new ExcelToJSON();
+    xl2json.parseExcel(files[0]);
+  }
+
+function buildJsonPayload(jsonArray){
+  let parsedJsonArray = JSON.parse(jsonArray)[0];
+  console.log(parsedJsonArray.PAYLOAD_SEMI_COMPLETO)
+  console.log(parsedJsonArray.PAYLOAD_COMPLETO)
+  console.log(parsedJsonArray.PAYLOAD_COMPLETO.businessName)
+  globalPayload = parsedJsonArray.PAYLOAD_SEMI_COMPLETO;
+  //jQuery( '#cnpj' ).val(parsedJsonArray.PAYLOAD_COMPLETO.businessName);
+}
+function createRegister(cnpj){
+
+  let url = 'http://towner-core-company.acesso.sdb-services/api/v1/partner/SDB_EXEMPLO/corporation-business/80426302000165'
+//  main.js
+   
+// POST request using fetch()
+fetch(url, {
+      
+      // Adding method type
+      method: "PUT",
+      //mode: "same-origin",
+        
+      // Adding body or contents to send
+      body: globalPayload,
+        
+      // Adding headers to the request
+      headers: {
+          "Content-type": "application/json; charset=UTF-8"
+      }
+  })
+    
+  // Converting to JSON
+  .then(response => response.json())
+    
+  // Displaying results to console
+  .then(json => console.log(json));
+}
+ 
+</script>
+
+<form enctype="multipart/form-data">
+    <input id="upload" type=file  name="files[]">
+</form>
+    <input class="form-control" type="text" id="cnpj"/>
+    <textarea class="form-control" rows=35 cols=120 id="xlx_json"></textarea>
+    <button type="button" onclick="createRegister('80426302000165')">Cadastrar Conta!</button>
+
+    <script>
+        document.getElementById('upload').addEventListener('change', handleFileSelect, false);
+    </script>
