@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<meta charset="UTF-8">
+<title>Cálculo de Possíveis Resultados</title>
+<head>
+   <style>
+      h2 {
+      font-size: 22px;
+      font-family: sans-serif;
+      }
+      img {
+      float: left;
+      }
+      h3 {
+      font-size: 28px;
+      font-family: 'Lato', sans-serif;
+      padding-right: 0px;
+      padding-bottom: 0px;
+      padding-left: 0px;
+      height: 40px;
+      color: #000080;
+      width: 100%;
+      }
+     
+    
+     input[type=text] {
+      width: 25%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+     .orderList {
+      width: 70%;
+      box-sizing: border-box;
+      border: 3px solid #ccc;
+      border-radius: 4px;
+      font-size: 20px;
+      font-family: sans-serif;
+      background-color: white;
+      background-repeat: no-repeat;
+      background-size: 40px 40px;
+      padding: 12px 20px 12px 40px;
+      -webkit-transition: width 0.4s ease-in-out;
+      transition: width 0.4s ease-in-out;
+      font-family: 'Lato', sans-serif;
+      color: #808080;
+      margin: 6px 2px;
+      }
+      input[type=text]:focus {
+      width: 40%;
+      }
+      .button {background-color: #4682B4;
+      border: none;
+      color: white;
+      padding: 15px 32px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      cursor: pointer;
+      border-radius: 4px;
+      font-family: 'Lato', sans-serif;
+      font-weight: bold;
+    
+      }
+      .buttonExport{
+      background-color: #C0C0C0;
+      } /* Gray */
+      table {
+      border-collapse: collapse;
+      width: 100%;
+      }
+      .export{
+      background-color: #C0C0C0;
+      }
+    .buttonclearTable {
+    background-color: #F95D5D;
+    background-repeat: no-repeat;
+      background-size: 40px 40px;
+    
+    }
+      th, td {
+      padding: 3px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+      }
+      th
+{      background-color: #4682B4;
+      color: white;
+      }
+      tr:nth-child(even){
+      background-color: #f2f2f2;
+      }
+   </style>
+
+   <script type="text/javascript">
+     
+
+
+ function calculatePossibilities() {
+ var matchNumber = document.getElementById("matchNumber").value;
+ var possibleResults = document.getElementById("possibleResults").value;
+ document.getElementById("possibleResultsCalculated").placeholder = Math.pow(possibleResults, matchNumber); 
+ 
+}
+
+
+
+   </script>
+</head>
+<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+<script src="src/table2csv.js"></script>
+<body>
+   <table id="cabecalho" border="0" bgcolor="#FFFFF" >
+      <tr>
+         <td>
+            <h3>Cálculo de Possíveis Resultados</h3>
+         </td>
+      </tr>
+   </table>
+<table>
+  <thead>
+    <tr>
+    </tr>
+    <tr>
+      <td>
+        <input type="text" id="matchNumber" class="input category" placeholder="Número de Partidas" />
+        <br>
+        <input type="text" id="possibleResults" class="input category" placeholder="Número de Resultados Possíveis" />
+        <br>
+               <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="calculatePossibilities()">Calcular</button>
+    </td>
+    </tr>
+  </thead>
+</table>
+<br>
+<!-- <span id="possibleResultsCalculated"></span> -->
+</table>
+   <table id="excelDataTable" border="1">
+    <tbody>
+        <input type="text" id="possibleResultsCalculated" class="input category" />
+    </tbody>
+   </table>
+
+<script>
+  /* table related functions */
+    
+function ClearTable(){
+ document.getElementById("apiResponse").textContent="";
+ $("#excelDataTable tr").remove();  
+ document.getElementById("message").textContent="";
+ MLBList = [];
+ EnableListProducts();
+ DisableCSV();
+}  
+
+  </script>
+
+</body>
+</html>
