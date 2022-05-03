@@ -40,6 +40,13 @@
       color: #808080;
       margin: 6px 2px;
       }
+
+      label{
+      font-size: 20px;
+      font-family: sans-serif;
+
+      }
+
      .orderList {
       width: 70%;
       box-sizing: border-box;
@@ -107,21 +114,19 @@
 
    <script type="text/javascript">
      
-
-
  function calculatePossibilities() {
  var matchNumber = document.getElementById("matchNumber").value;
  var possibleResults = document.getElementById("possibleResults").value;
- document.getElementById("possibleResultsCalculated").placeholder = Math.pow(possibleResults, matchNumber); 
+ document.getElementById("possibleResultsCalculated").placeholder = formatNumber(Math.pow(possibleResults, matchNumber)); 
  
 }
-
-
 
    </script>
 </head>
 <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
 <script src="src/table2csv.js"></script>
+<script src="https://unpkg.com/imask"></script>
+
 <body>
    <table id="cabecalho" border="0" bgcolor="#FFFFF" >
       <tr>
@@ -136,9 +141,9 @@
     </tr>
     <tr>
       <td>
-        <input type="text" id="matchNumber" class="input category" placeholder="Número de Partidas" />
+        <input type="text" id="matchNumber" class="" placeholder="Número de Partidas" />
         <br>
-        <input type="text" id="possibleResults" class="input category" placeholder="Número de Resultados Possíveis" />
+        <input type="text" id="possibleResults" class="" placeholder="Número de Resultados Possíveis" />
         <br>
                <button class="button buttonGetList" value="Visiveis" id="ListProducts" onclick="calculatePossibilities()">Calcular</button>
     </td>
@@ -150,21 +155,15 @@
 </table>
    <table id="excelDataTable" border="1">
     <tbody>
-        <input type="text" id="possibleResultsCalculated" class="input category" />
+        <label>Número Total de Possíveis Resultados: <input type="text" id="possibleResultsCalculated" class="" /> </label>
     </tbody>
    </table>
 
 <script>
   /* table related functions */
-    
-function ClearTable(){
- document.getElementById("apiResponse").textContent="";
- $("#excelDataTable tr").remove();  
- document.getElementById("message").textContent="";
- MLBList = [];
- EnableListProducts();
- DisableCSV();
-}  
+  function formatNumber(num) {
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.')
+}
 
   </script>
 
